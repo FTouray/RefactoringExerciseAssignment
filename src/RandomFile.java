@@ -75,7 +75,7 @@ public class RandomFile {
 
 		try // output values to file
 		{
-			record = new RandomAccessEmployeeRecord(newEmployee.getEmployeeId(), newEmployee.getPps(),
+			record = new RandomAccessEmployeeRecord(newEmployee.getEmployeeId(), newEmployee.getPpsNumber(),
 					newEmployee.getSurname(), newEmployee.getFirstName(), newEmployee.getGender(),
 					newEmployee.getDepartment(), newEmployee.getSalary(), newEmployee.getFullTime());
 
@@ -103,7 +103,7 @@ public class RandomFile {
 		Employee oldDetails = newDetails;
 		try // output values to file
 		{
-			record = new RandomAccessEmployeeRecord(oldDetails.getEmployeeId(), oldDetails.getPps(),
+			record = new RandomAccessEmployeeRecord(oldDetails.getEmployeeId(), oldDetails.getPpsNumber(),
 					oldDetails.getSurname(), oldDetails.getFirstName(), oldDetails.getGender(),
 					oldDetails.getDepartment(), oldDetails.getSalary(), oldDetails.getFullTime());
 
@@ -240,7 +240,7 @@ public class RandomFile {
 	}// end readRecords
 
 	// Check if PPS Number already in use
-	public boolean isPpsExist(String pps, long currentByteStart) {
+	public boolean isPpsExist(String ppsNumber, long currentByteStart) {
 		RandomAccessEmployeeRecord record = new RandomAccessEmployeeRecord();
 		boolean ppsExist = false;
 		long oldByteStart = currentByteStart;
@@ -254,7 +254,7 @@ public class RandomFile {
 					input.seek(currentByte);// Look for proper position in file
 					record.read(input);// Get record from file
 					// If PPS Number already exist in other record display message and stop search
-					if (record.getPps().trim().equalsIgnoreCase(pps)) {
+					if (record.getPpsNumber().trim().equalsIgnoreCase(ppsNumber)) {
 						ppsExist = true;
 						JOptionPane.showMessageDialog(null, "PPS number already exist!");
 					}// end if

@@ -6,7 +6,7 @@
 
 public class Employee{
 	private int employeeId;
-	private String pps;
+	private String ppsNumber;
 	private String surname;
 	private String firstName;
 	private char gender;
@@ -17,7 +17,7 @@ public class Employee{
 	// Create Employee with no details
 	public Employee() {
 		this.employeeId = 0;
-		this.pps = "";
+		this.ppsNumber = "";
 		this.surname = "";
 		this.firstName = "";
 		this.gender = '\0';
@@ -27,10 +27,10 @@ public class Employee{
 	}//end Employee with no details
 
 	// Create Employee with details
-	public Employee(int employeeId, String pps, String surname, String firstName, char gender, String department, double salary,
+	public Employee(int employeeId, String ppsNumber, String surname, String firstName, char gender, String department, double salary,
 			boolean fullTime) {
 		this.employeeId = employeeId;
-		this.pps = pps;
+		this.ppsNumber = ppsNumber;
 		this.surname = surname;
 		this.firstName = firstName;
 		this.gender = gender;
@@ -44,8 +44,8 @@ public class Employee{
 		return this.employeeId;
 	}
 
-	public String getPps() {
-		return pps;
+	public String getPpsNumber() {
+		return ppsNumber;
 	}
 
 	public String getSurname() {
@@ -77,8 +77,8 @@ public class Employee{
 		this.employeeId = employeeId;
 	}
 	
-	public void setPps(String pps) {
-		this.pps = pps;
+	public void setPpsNumber(String ppsNumber) {
+		this.ppsNumber = ppsNumber;
 	}
 
 	public void setSurname(String surname) {
@@ -113,7 +113,7 @@ public class Employee{
 		else
 			bool = "No";
 
-		return "Employee ID: " + this.employeeId + "\nPPS Number: " + this.pps + "\nSurname: " + this.surname
+		return "Employee ID: " + this.employeeId + "\nPPS Number: " + this.ppsNumber + "\nSurname: " + this.surname
 				+ "\nFirst Name: " + this.firstName + "\nGender: " + this.gender + "\nDepartment: " + this.department + "\nSalary: " + this.salary
 				+ "\nFull Time: " + bool;
 	}// end toString

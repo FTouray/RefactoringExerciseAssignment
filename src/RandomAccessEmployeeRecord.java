@@ -18,17 +18,17 @@ public class RandomAccessEmployeeRecord extends Employee
    } // end RandomAccessEmployeeRecord
 
    // Initialize record with details
-   public RandomAccessEmployeeRecord( int employeeId, String pps, String surname, String firstName, char gender, 
+   public RandomAccessEmployeeRecord( int employeeId, String ppsNumber, String surname, String firstName, char gender, 
 		   String department, double salary, boolean fullTime)
    {
-      super(employeeId, pps, surname, firstName, gender, department, salary, fullTime);
+      super(employeeId, ppsNumber, surname, firstName, gender, department, salary, fullTime);
    } // end RandomAccessEmployeeRecord
 
    // Read a record from specified RandomAccessFile
    public void read( RandomAccessFile file ) throws IOException
    {
 	   	setEmployeeId(file.readInt());
-		setPps(readName(file));
+		setPpsNumber(readName(file));
 		setSurname(readName(file));
 		setFirstName(readName(file));
 		setGender(file.readChar());
@@ -55,7 +55,7 @@ public class RandomAccessEmployeeRecord extends Employee
    public void write( RandomAccessFile file ) throws IOException
    {
       file.writeInt( getEmployeeId() );
-      writeName(file, getPps().toUpperCase());
+      writeName(file, getPpsNumber().toUpperCase());
       writeName( file, getSurname().toUpperCase() );
       writeName( file, getFirstName().toUpperCase() );
       file.writeChar(getGender());

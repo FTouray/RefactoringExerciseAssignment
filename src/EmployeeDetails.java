@@ -70,7 +70,7 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 	private JButton first, previous, next, last, add, edit, deleteButton, displayAll, searchId, searchSurname,
 			saveChange, cancelChange;
 	private JComboBox<String> genderCombo, departmentCombo, fullTimeCombo;
-	private JTextField idField, ppsField, surnameField, firstNameField, salaryField;
+	private JTextField idField, ppsNumberField, surnameField, firstNameField, salaryField;
 	private static EmployeeDetails frame = new EmployeeDetails();
 	// font for labels, text fields and combo boxes
 	Font font1 = new Font("SansSerif", Font.BOLD, 16);
@@ -222,36 +222,36 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 
 	// initialize main/details panel
 	private JPanel detailsPanel() {
-		JPanel empDetails = new JPanel(new MigLayout());
+		JPanel employeeDetailsPanel = new JPanel(new MigLayout());
 		JPanel buttonPanel = new JPanel();
 		JTextField field;
 
-		empDetails.setBorder(BorderFactory.createTitledBorder("Employee Details"));
+		employeeDetailsPanel.setBorder(BorderFactory.createTitledBorder("Employee Details"));
 
-		empDetails.add(new JLabel("ID:"), "growx, pushx");
-		empDetails.add(idField = new JTextField(20), "growx, pushx, wrap");
+		employeeDetailsPanel.add(new JLabel("ID:"), "growx, pushx");
+		employeeDetailsPanel.add(idField = new JTextField(20), "growx, pushx, wrap");
 		idField.setEditable(false);
 
-		empDetails.add(new JLabel("PPS Number:"), "growx, pushx");
-		empDetails.add(ppsField = new JTextField(20), "growx, pushx, wrap");
+		employeeDetailsPanel.add(new JLabel("PPS Number:"), "growx, pushx");
+		employeeDetailsPanel.add(ppsNumberField = new JTextField(20), "growx, pushx, wrap");
 
-		empDetails.add(new JLabel("Surname:"), "growx, pushx");
-		empDetails.add(surnameField = new JTextField(20), "growx, pushx, wrap");
+		employeeDetailsPanel.add(new JLabel("Surname:"), "growx, pushx");
+		employeeDetailsPanel.add(surnameField = new JTextField(20), "growx, pushx, wrap");
 
-		empDetails.add(new JLabel("First Name:"), "growx, pushx");
-		empDetails.add(firstNameField = new JTextField(20), "growx, pushx, wrap");
+		employeeDetailsPanel.add(new JLabel("First Name:"), "growx, pushx");
+		employeeDetailsPanel.add(firstNameField = new JTextField(20), "growx, pushx, wrap");
 
-		empDetails.add(new JLabel("Gender:"), "growx, pushx");
-		empDetails.add(genderCombo = new JComboBox<String>(gender), "growx, pushx, wrap");
+		employeeDetailsPanel.add(new JLabel("Gender:"), "growx, pushx");
+		employeeDetailsPanel.add(genderCombo = new JComboBox<String>(gender), "growx, pushx, wrap");
 
-		empDetails.add(new JLabel("Department:"), "growx, pushx");
-		empDetails.add(departmentCombo = new JComboBox<String>(department), "growx, pushx, wrap");
+		employeeDetailsPanel.add(new JLabel("Department:"), "growx, pushx");
+		employeeDetailsPanel.add(departmentCombo = new JComboBox<String>(department), "growx, pushx, wrap");
 
-		empDetails.add(new JLabel("Salary:"), "growx, pushx");
-		empDetails.add(salaryField = new JTextField(20), "growx, pushx, wrap");
+		employeeDetailsPanel.add(new JLabel("Salary:"), "growx, pushx");
+		employeeDetailsPanel.add(salaryField = new JTextField(20), "growx, pushx, wrap");
 
-		empDetails.add(new JLabel("Full Time:"), "growx, pushx");
-		empDetails.add(fullTimeCombo = new JComboBox<String>(fullTime), "growx, pushx, wrap");
+		employeeDetailsPanel.add(new JLabel("Full Time:"), "growx, pushx");
+		employeeDetailsPanel.add(fullTimeCombo = new JComboBox<String>(fullTime), "growx, pushx, wrap");
 
 		buttonPanel.add(saveChange = new JButton("Save"));
 		saveChange.addActionListener(this);
@@ -262,25 +262,25 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 		cancelChange.setVisible(false);
 		cancelChange.setToolTipText("Cancel edit");
 
-		empDetails.add(buttonPanel, "span 2,growx, pushx,wrap");
+		employeeDetailsPanel.add(buttonPanel, "span 2,growx, pushx,wrap");
 
 		// loop through panel components and add listeners and format
-		for (int i = 0; i < empDetails.getComponentCount(); i++) {
-			empDetails.getComponent(i).setFont(font1);
-			if (empDetails.getComponent(i) instanceof JTextField) {
-				field = (JTextField) empDetails.getComponent(i);
+		for (int i = 0; i < employeeDetailsPanel.getComponentCount(); i++) {
+			employeeDetailsPanel.getComponent(i).setFont(font1);
+			if (employeeDetailsPanel.getComponent(i) instanceof JTextField) {
+				field = (JTextField) employeeDetailsPanel.getComponent(i);
 				field.setEditable(false);
-				if (field == ppsField)
+				if (field == ppsNumberField)
 					field.setDocument(new JTextFieldLimit(9));
 				else
 					field.setDocument(new JTextFieldLimit(20));
 				field.getDocument().addDocumentListener(this);
 			} // end if
-			else if (empDetails.getComponent(i) instanceof JComboBox) {
-				empDetails.getComponent(i).setBackground(Color.WHITE);
-				empDetails.getComponent(i).setEnabled(false);
-				((JComboBox<String>) empDetails.getComponent(i)).addItemListener(this);
-				((JComboBox<String>) empDetails.getComponent(i)).setRenderer(new DefaultListCellRenderer() {
+			else if (employeeDetailsPanel.getComponent(i) instanceof JComboBox) {
+				employeeDetailsPanel.getComponent(i).setBackground(Color.WHITE);
+				employeeDetailsPanel.getComponent(i).setEnabled(false);
+				((JComboBox<String>) employeeDetailsPanel.getComponent(i)).addItemListener(this);
+				((JComboBox<String>) employeeDetailsPanel.getComponent(i)).setRenderer(new DefaultListCellRenderer() {
 					// set foregroung to combo boxes
 					public void paint(Graphics g) {
 						setForeground(new Color(65, 65, 65));
@@ -289,7 +289,7 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 				});
 			} // end else if
 		} // end for
-		return empDetails;
+		return employeeDetailsPanel;
 	}// end detailsPanel
 
 	// display current Employee details
@@ -321,7 +321,7 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 					countDep++;
 			} // end while
 			idField.setText(Integer.toString(thisEmployee.getEmployeeId()));
-			ppsField.setText(thisEmployee.getPps().trim());
+			ppsNumberField.setText(thisEmployee.getPpsNumber().trim());
 			surnameField.setText(thisEmployee.getSurname().trim());
 			firstNameField.setText(thisEmployee.getFirstName());
 			genderCombo.setSelectedIndex(countGender);
@@ -536,7 +536,7 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 		if (((String) fullTimeCombo.getSelectedItem()).equalsIgnoreCase("Yes"))
 			fullTime = true;
 
-		theEmployee = new Employee(Integer.parseInt(idField.getText()), ppsField.getText().toUpperCase(),
+		theEmployee = new Employee(Integer.parseInt(idField.getText()), ppsNumberField.getText().toUpperCase(),
 				surnameField.getText().toUpperCase(), firstNameField.getText().toUpperCase(),
 				genderCombo.getSelectedItem().toString().charAt(0), departmentCombo.getSelectedItem().toString(),
 				Double.parseDouble(salaryField.getText()), fullTime);
@@ -579,7 +579,7 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 	private Vector<Object> getAllEmloyees() {
 		// vector of Employee objects
 		Vector<Object> allEmployee = new Vector<Object>();
-		Vector<Object> empDetails;// vector of each employee details
+		Vector<Object> employeeDetailsPanel;// vector of each employee details
 		long byteStart = currentByteStart;
 		int firstId;
 
@@ -587,17 +587,17 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 		firstId = currentEmployee.getEmployeeId();
 		// loop until all Employees are added to vector
 		do {
-			empDetails = new Vector<Object>();
-			empDetails.addElement(new Integer(currentEmployee.getEmployeeId()));
-			empDetails.addElement(currentEmployee.getPps());
-			empDetails.addElement(currentEmployee.getSurname());
-			empDetails.addElement(currentEmployee.getFirstName());
-			empDetails.addElement(new Character(currentEmployee.getGender()));
-			empDetails.addElement(currentEmployee.getDepartment());
-			empDetails.addElement(new Double(currentEmployee.getSalary()));
-			empDetails.addElement(new Boolean(currentEmployee.getFullTime()));
+			employeeDetailsPanel = new Vector<Object>();
+			employeeDetailsPanel.addElement(new Integer(currentEmployee.getEmployeeId()));
+			employeeDetailsPanel.addElement(currentEmployee.getPpsNumber());
+			employeeDetailsPanel.addElement(currentEmployee.getSurname());
+			employeeDetailsPanel.addElement(currentEmployee.getFirstName());
+			employeeDetailsPanel.addElement(new Character(currentEmployee.getGender()));
+			employeeDetailsPanel.addElement(currentEmployee.getDepartment());
+			employeeDetailsPanel.addElement(new Double(currentEmployee.getSalary()));
+			employeeDetailsPanel.addElement(new Boolean(currentEmployee.getFullTime()));
 
-			allEmployee.addElement(empDetails);
+			allEmployee.addElement(employeeDetailsPanel);
 			nextRecord();// look for next record
 		} while (firstId != currentEmployee.getEmployeeId());// end do - while
 		currentByteStart = byteStart;
@@ -634,7 +634,7 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 		if (!someoneToDisplay) {
 			currentEmployee = null;
 			idField.setText("");
-			ppsField.setText("");
+			ppsNumberField.setText("");
 			surnameField.setText("");
 			firstNameField.setText("");
 			salaryField.setText("");
@@ -647,28 +647,28 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 	}// end isSomeoneToDisplay
 
 	// check for correct PPS format and look if PPS already in use
-	public boolean correctPps(String pps, long currentByte) {
-		boolean ppsExist = false;
+	public boolean correctPps(String ppsNumber, long currentByte) {
+		boolean ppsNumberExist = false;
 		// check for correct PPS format based on assignment description
-		if (pps.length() == 8 || pps.length() == 9) {
-			if (Character.isDigit(pps.charAt(0)) && Character.isDigit(pps.charAt(1))
-					&& Character.isDigit(pps.charAt(2))	&& Character.isDigit(pps.charAt(3)) 
-					&& Character.isDigit(pps.charAt(4))	&& Character.isDigit(pps.charAt(5)) 
-					&& Character.isDigit(pps.charAt(6))	&& Character.isLetter(pps.charAt(7))
-					&& (pps.length() == 8 || Character.isLetter(pps.charAt(8)))) {
+		if (ppsNumber.length() == 8 || ppsNumber.length() == 9) {
+			if (Character.isDigit(ppsNumber.charAt(0)) && Character.isDigit(ppsNumber.charAt(1))
+					&& Character.isDigit(ppsNumber.charAt(2))	&& Character.isDigit(ppsNumber.charAt(3)) 
+					&& Character.isDigit(ppsNumber.charAt(4))	&& Character.isDigit(ppsNumber.charAt(5)) 
+					&& Character.isDigit(ppsNumber.charAt(6))	&& Character.isLetter(ppsNumber.charAt(7))
+					&& (ppsNumber.length() == 8 || Character.isLetter(ppsNumber.charAt(8)))) {
 				// open file for reading
 				application.openReadFile(file.getAbsolutePath());
 				// look in file is PPS already in use
-				ppsExist = application.isPpsExist(pps, currentByte);
+				ppsNumberExist = application.isPpsExist(ppsNumber, currentByte);
 				application.closeReadFile();// close file for reading
 			} // end if
 			else
-				ppsExist = true;
+				ppsNumberExist = true;
 		} // end if
 		else
-			ppsExist = true;
+			ppsNumberExist = true;
 
-		return ppsExist;
+		return ppsNumberExist;
 	}// end correctPPS
 
 	// check if file name has extension .dat
@@ -706,12 +706,12 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 		boolean valid = true;
 		// if any of inputs are in wrong format, colour text field and display
 		// message
-		if (ppsField.isEditable() && ppsField.getText().trim().isEmpty()) {
-			ppsField.setBackground(new Color(255, 150, 150));
+		if (ppsNumberField.isEditable() && ppsNumberField.getText().trim().isEmpty()) {
+			ppsNumberField.setBackground(new Color(255, 150, 150));
 			valid = false;
 		} // end if
-		if (ppsField.isEditable() && correctPps(ppsField.getText().trim(), currentByteStart)) {
-			ppsField.setBackground(new Color(255, 150, 150));
+		if (ppsNumberField.isEditable() && correctPps(ppsNumberField.getText().trim(), currentByteStart)) {
+			ppsNumberField.setBackground(new Color(255, 150, 150));
 			valid = false;
 		} // end if
 		if (surnameField.isEditable() && surnameField.getText().trim().isEmpty()) {
@@ -752,7 +752,7 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 		if (!valid)
 			JOptionPane.showMessageDialog(null, "Wrong values or format! Please check!");
 		// set text field to white colour if text fields are editable
-		if (ppsField.isEditable())
+		if (ppsNumberField.isEditable())
 			setToWhite();
 
 		return valid;
@@ -760,7 +760,7 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 
 	// set text field background colour to white
 	private void setToWhite() {
-		ppsField.setBackground(UIManager.getColor("TextField.background"));
+		ppsNumberField.setBackground(UIManager.getColor("TextField.background"));
 		surnameField.setBackground(UIManager.getColor("TextField.background"));
 		firstNameField.setBackground(UIManager.getColor("TextField.background"));
 		salaryField.setBackground(UIManager.getColor("TextField.background"));
@@ -776,7 +776,7 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 			search = false;
 		else
 			search = true;
-		ppsField.setEditable(booleanValue);
+		ppsNumberField.setEditable(booleanValue);
 		surnameField.setEditable(booleanValue);
 		firstNameField.setEditable(booleanValue);
 		genderCombo.setEnabled(booleanValue);
