@@ -28,10 +28,10 @@ import net.miginfocom.swing.MigLayout;
 
 public class EmployeeSummaryDialog extends JDialog implements ActionListener {
 	// vector with all Employees details
-	Vector<Object> allEmployees;
+	Vector<Vector<Object>> allEmployees;
 	JButton back;
 	
-	public EmployeeSummaryDialog(Vector<Object> allEmployees) {
+	public EmployeeSummaryDialog(Vector<Vector<Object>> allEmployees) {
 		setTitle("Employee Summary");
 		setModal(true);
 		this.allEmployees = allEmployees;
@@ -69,8 +69,8 @@ public class EmployeeSummaryDialog extends JDialog implements ActionListener {
 			header.addElement(headerName[i]);
 		}// end for
 		// construnct table and choose table model for each column
-		tableModel = new DefaultTableModel(this.allEmployees, header) {
-			public Class getColumnClass(int c) {
+		tableModel = new DefaultTableModel((Vector<Vector<Object>>) this.allEmployees, header) {
+			public Class<?> getColumnClass(int c) {
 				switch (c) {
 				case 0:
 					return Integer.class;
