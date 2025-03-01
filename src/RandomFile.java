@@ -12,6 +12,21 @@ import java.util.ArrayList;
 import javax.swing.JOptionPane;
 
 public class RandomFile {
+	private static RandomFile instance; // the single instance
+
+	// Make constructor private so nobody can do new RandomFile() externally
+	private RandomFile() {
+		// constructor body can be empty or contain initialization if needed
+	}
+
+	// The global access point to get the single RandomFile instance
+	public static synchronized RandomFile getInstance() {
+		if (instance == null) {
+			instance = new RandomFile();
+		}
+		return instance;
+	}
+	
 	private RandomAccessFile output;
 	private RandomAccessFile input;
 
