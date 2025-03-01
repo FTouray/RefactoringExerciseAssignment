@@ -647,29 +647,14 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 	}// end isSomeoneToDisplay
 
 	// check for correct PPS format and look if PPS already in use
-	public boolean correctPps(String ppsNumber, long currentByte) {
-		boolean ppsNumberExist = false;
-		// check for correct PPS format based on assignment description
-		if (ppsNumber.length() == 8 || ppsNumber.length() == 9) {
-			if (Character.isDigit(ppsNumber.charAt(0)) && Character.isDigit(ppsNumber.charAt(1))
-					&& Character.isDigit(ppsNumber.charAt(2))	&& Character.isDigit(ppsNumber.charAt(3)) 
-					&& Character.isDigit(ppsNumber.charAt(4))	&& Character.isDigit(ppsNumber.charAt(5)) 
-					&& Character.isDigit(ppsNumber.charAt(6))	&& Character.isLetter(ppsNumber.charAt(7))
-					&& (ppsNumber.length() == 8 || Character.isLetter(ppsNumber.charAt(8)))) {
-				// open file for reading
-				application.openReadFile(file.getAbsolutePath());
-				// look in file is PPS already in use
-				ppsNumberExist = application.isPpsExist(ppsNumber, currentByte);
-				application.closeReadFile();// close file for reading
-			} // end if
-			else
-				ppsNumberExist = true;
-		} // end if
-		else
-			ppsNumberExist = true;
-
+	public boolean ppsNumberAlreadyExists(String ppsNumber, long currentByte) {
+		// open file for reading
+		application.openReadFile(file.getAbsolutePath());
+		// look in file if PPS is already in use
+		boolean ppsNumberExist = application.isPpsExist(ppsNumber, currentByte);
+		application.closeReadFile(); // close file
 		return ppsNumberExist;
-	}// end correctPPS
+	}
 
 	// check if file name has extension .dat
 	private boolean checkFileName(File fileName) {
@@ -707,10 +692,6 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 		// if any of inputs are in wrong format, colour text field and display
 		// message
 		if (ppsNumberField.isEditable() && ppsNumberField.getText().trim().isEmpty()) {
-			ppsNumberField.setBackground(new Color(255, 150, 150));
-			valid = false;
-		} // end if
-		if (ppsNumberField.isEditable() && correctPps(ppsNumberField.getText().trim(), currentByteStart)) {
 			ppsNumberField.setBackground(new Color(255, 150, 150));
 			valid = false;
 		} // end if

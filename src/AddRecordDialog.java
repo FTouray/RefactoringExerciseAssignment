@@ -124,49 +124,50 @@ public class AddRecordDialog extends JDialog implements ActionListener {
 	// check for input in text fields
 	public boolean checkInput() {
 		boolean valid = true;
-		// if any of inputs are in wrong format, colour text field and display message
-		if (ppsNumberField.getText().equals("")) {
+		// Validate PPS
+		if (!EmployeeInputValidator.isNotEmpty(ppsNumberField.getText())
+				|| !EmployeeInputValidator.isValidPps(ppsNumberField.getText())) {
 			ppsNumberField.setBackground(new Color(255, 150, 150));
 			valid = false;
-		}// end if
-		if (this.parent.correctPps(this.ppsNumberField.getText().trim(), -1)) {
-			ppsNumberField.setBackground(new Color(255, 150, 150));
-			valid = false;
-		}// end if
-		if (surnameField.getText().isEmpty()) {
+		}
+
+		// Validate surname
+		if (!EmployeeInputValidator.isNotEmpty(surnameField.getText())) {
 			surnameField.setBackground(new Color(255, 150, 150));
 			valid = false;
-		}// end if
-		if (firstNameField.getText().isEmpty()) {
+		}
+
+		// Validate first name
+		if (!EmployeeInputValidator.isNotEmpty(firstNameField.getText())) {
 			firstNameField.setBackground(new Color(255, 150, 150));
 			valid = false;
-		}// end if
+		}
+
+		// Validate salary
+		if (!EmployeeInputValidator.isValidSalary(salaryField.getText())) {
+			salaryField.setBackground(new Color(255, 150, 150));
+			valid = false;
+		}
+
+		// Check combos for e.g. 0 index => not selected
 		if (genderCombo.getSelectedIndex() == 0) {
 			genderCombo.setBackground(new Color(255, 150, 150));
 			valid = false;
-		}// end if
+		}
 		if (departmentCombo.getSelectedIndex() == 0) {
 			departmentCombo.setBackground(new Color(255, 150, 150));
 			valid = false;
-		}// end if
-		try {// try to get values from text field
-			Double.parseDouble(salaryField.getText());
-			// check if salary is greater than 0
-			if (Double.parseDouble(salaryField.getText()) < 0) {
-				salaryField.setBackground(new Color(255, 150, 150));
-				valid = false;
-			}// end if
-		}// end try
-		catch (NumberFormatException num) {
-			salaryField.setBackground(new Color(255, 150, 150));
-			valid = false;
-		}// end catch
+		}
 		if (fullTimeCombo.getSelectedIndex() == 0) {
 			fullTimeCombo.setBackground(new Color(255, 150, 150));
 			valid = false;
-		}// end if
+		}
+
+		if (!valid) {
+			JOptionPane.showMessageDialog(null, "Wrong values or format! Please check!");
+		}
 		return valid;
-	}// end checkInput
+	}
 
 	// set text field to white colour
 	public void setToWhite() {
