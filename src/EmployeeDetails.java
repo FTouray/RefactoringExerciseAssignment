@@ -31,6 +31,7 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -982,10 +983,20 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 		} else if (e.getSource() == searchBySurname) {
 			if (checkInput() && !checkForChanges())
 				displaySearchBySurnameDialog();
-		} else if (e.getSource() == searchId || e.getSource() == searchByIdField)
-			searchEmployeeById();
-		else if (e.getSource() == searchSurname || e.getSource() == searchBySurnameField)
-			searchEmployeeBySurname();
+		} else if (e.getSource() == searchById || e.getSource() == searchByIdField)  {
+            if (checkInput() && !checkForChanges()) {
+                // BEFORE: new SearchByIdDialog(this);
+                DialogFactory factory = new SearchByIdDialogFactory();
+                JDialog dialog = factory.createDialog(this);
+                dialog.setVisible(true);
+            }
+        } else if (e.getSource() == searchSurname || e.getSource() == searchBySurnameField) {
+            if (checkInput() && !checkForChanges()) {
+                DialogFactory factory = new SearchBySurnameDialogFactory();
+				JDialog dialog = factory.createDialog(this);
+				dialog.setVisible(true);
+        	}
+		}
 		else if (e.getSource() == saveChange) {
 			if (checkInput() && !checkForChanges())
 				;
@@ -1016,8 +1027,12 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 				if (isSomeoneToDisplay())
 					displayEmployeeSummaryDialog();
 		} else if (e.getSource() == create || e.getSource() == add) {
-			if (checkInput() && !checkForChanges())
-				new AddRecordDialog(EmployeeDetails.this);
+			if (checkInput() && !checkForChanges()) {
+				// BEFORE: new AddRecordDialog(this);
+				DialogFactory factory = new AddDialogFactory();
+				JDialog dialog = factory.createDialog(this);
+				dialog.setVisible(true);
+			}
 		} else if (e.getSource() == modify || e.getSource() == edit) {
 			if (checkInput() && !checkForChanges())
 				editDetails();
