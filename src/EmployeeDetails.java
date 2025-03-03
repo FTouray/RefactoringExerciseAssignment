@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.text.DecimalFormat;
+import java.util.List;
 import java.util.Random;
 import java.util.Vector;
 
@@ -50,14 +51,15 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import net.miginfocom.swing.MigLayout;
 
-public class EmployeeDetails extends JFrame implements ActionListener, ItemListener, DocumentListener, WindowListener {
+public class EmployeeDetails extends JFrame implements ActionListener, ItemListener, DocumentListener, WindowListener, EmployeeModelObserver {
 	// decimal format for inactive currency text field
 	private static final DecimalFormat format = new DecimalFormat("\u20ac ###,###,##0.00");
 	// decimal format for active currency text field
 	private static final DecimalFormat fieldFormat = new DecimalFormat("0.00");
 	// hold object start position in file
 	private long currentByteStart = 0;
-	private RandomFile application = RandomFile.getInstance();
+	// private RandomFile application = RandomFile.getInstance();
+	private EmployeeDataModel model;
 	// display files in File Chooser only with extension .dat
 	private FileNameExtensionFilter datfilter = new FileNameExtensionFilter("dat files (*.dat)", "dat");
 	// hold file name and path for current file in use
@@ -293,201 +295,118 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 		return employeeDetailsPanel;
 	}// end detailsPanel
 
+	public EmployeeDetails() {
+		super("Employee Details");
+		model = new EmployeeDataModel();
+		model.registerObserver(this);
+
+		file = new File("Employee.dat"); // Default file
+		model.loadAllFromFile(file.getAbsolutePath());
+	}
+
+	@Override
+	public void onEmployeeListChanged() {
+		// Refresh UI whenever data changes
+		if (currentEmployee != null) {
+			displayRecords(currentEmployee);
+		}
+	}
+
 	// display current Employee details
 	public void displayRecords(Employee thisEmployee) {
-		int countGender = 0;
-		int countDep = 0;
-		boolean found = false;
-
-		searchByIdField.setText("");
-		searchBySurnameField.setText("");
-		// if Employee is null or ID is 0 do nothing else display Employee
-		// details
-		if (thisEmployee == null) {
-		} else if (thisEmployee.getEmployeeId() == 0) {
+		if (thisEmployee == null || thisEmployee.getEmployeeId() == 0) {
+			idField.setText("");
+			ppsNumberField.setText("");
+			surnameField.setText("");
+			firstNameField.setText("");
+			salaryField.setText("");
+			genderCombo.setSelectedIndex(0);
+			departmentCombo.setSelectedIndex(0);
+			fullTimeCombo.setSelectedIndex(0);
 		} else {
-			// find corresponding gender combo box value to current employee
-			while (!found && countGender < gender.length - 1) {
-				if (Character.toString(thisEmployee.getGender()).equalsIgnoreCase(gender[countGender]))
-					found = true;
-				else
-					countGender++;
-			} // end while
-			found = false;
-			// find corresponding department combo box value to current employee
-			while (!found && countDep < department.length - 1) {
-				if (thisEmployee.getDepartment().trim().equalsIgnoreCase(department[countDep]))
-					found = true;
-				else
-					countDep++;
-			} // end while
-			idField.setText(Integer.toString(thisEmployee.getEmployeeId()));
+			idField.setText(String.valueOf(thisEmployee.getEmployeeId()));
 			ppsNumberField.setText(thisEmployee.getPpsNumber().trim());
 			surnameField.setText(thisEmployee.getSurname().trim());
 			firstNameField.setText(thisEmployee.getFirstName());
-			genderCombo.setSelectedIndex(countGender);
-			departmentCombo.setSelectedIndex(countDep);
+			genderCombo.setSelectedItem(String.valueOf(thisEmployee.getGender()));
+			departmentCombo.setSelectedItem(thisEmployee.getDepartment());
 			salaryField.setText(format.format(thisEmployee.getSalary()));
-			// set corresponding full time combo box value to current employee
-			if (thisEmployee.getFullTime() == true)
-				fullTimeCombo.setSelectedIndex(1);
-			else
-				fullTimeCombo.setSelectedIndex(2);
+			fullTimeCombo.setSelectedItem(thisEmployee.getFullTime() ? "Yes" : "No");
 		}
 		change = false;
-	}// end display records
+	}
 
-	// display Employee summary dialog
-	private void displayEmployeeSummaryDialog() {
-		// display Employee summary dialog if these is someone to display
-		if (isSomeoneToDisplay())
-			new EmployeeSummaryDialog(getAllEmloyees());
-	}// end displaySummaryDialog
-
-	// display search by ID dialog
-	private void displaySearchByIdDialog() {
-		if (isSomeoneToDisplay())
-			new SearchByIdDialog(EmployeeDetails.this);
-	}// end displaySearchByIdDialog
-
-	// display search by surname dialog
-	private void displaySearchBySurnameDialog() {
-		if (isSomeoneToDisplay())
-			new SearchBySurnameDialog(EmployeeDetails.this);
-	}// end displaySearchBySurnameDialog
-
-	// find byte start in file for first active record
 	private void firstRecord() {
-		// if any active record in file look for first record
-		if (isSomeoneToDisplay()) {
-			// open file for reading
-			application.openReadFile(file.getAbsolutePath());
-			// get byte start in file for first record
-			currentByteStart = application.getFirst();
-			// assign current Employee to first record in file
-			currentEmployee = application.readRecords(currentByteStart);
-			application.closeReadFile();// close file for reading
-			// if first record is inactive look for next record
-			if (currentEmployee.getEmployeeId() == 0)
-				nextRecord();// look for next record
-		} // end if
-	}// end firstRecord
+    List<Employee> employees = model.getAll(); // Get all employees from the model
+
+    if (!employees.isEmpty()) { 
+        currentEmployee = employees.get(0); // Get the first employee
+        displayRecords(currentEmployee); // Display the employee details
+    } else {
+        JOptionPane.showMessageDialog(this, "No Employees available!");
+    }
+	}
 
 	// find byte start in file for previous active record
 	private void previousRecord() {
-		// if any active record in file look for first record
-		if (isSomeoneToDisplay()) {
-			// open file for reading
-			application.openReadFile(file.getAbsolutePath());
-			// get byte start in file for previous record
-			currentByteStart = application.getPrevious(currentByteStart);
-			// assign current Employee to previous record in file
-			currentEmployee = application.readRecords(currentByteStart);
-			// loop to previous record until Employee is active - ID is not 0
-			while (currentEmployee.getEmployeeId() == 0) {
-				// get byte start in file for previous record
-				currentByteStart = application.getPrevious(currentByteStart);
-				// assign current Employee to previous record in file
-				currentEmployee = application.readRecords(currentByteStart);
-			} // end while
-			application.closeReadFile();// close file for reading
+		int index = model.getAll().indexOf(currentEmployee);
+		if (index > 0) {
+			currentEmployee = model.getAll().get(index - 1);
+			displayRecords(currentEmployee);
 		}
 	}// end previousRecord
 
 	// find byte start in file for next active record
 	private void nextRecord() {
-		// if any active record in file look for first record
-		if (isSomeoneToDisplay()) {
-			// open file for reading
-			application.openReadFile(file.getAbsolutePath());
-			// get byte start in file for next record
-			currentByteStart = application.getNext(currentByteStart);
-			// assign current Employee to record in file
-			currentEmployee = application.readRecords(currentByteStart);
-			// loop to previous next until Employee is active - ID is not 0
-			while (currentEmployee.getEmployeeId() == 0) {
-				// get byte start in file for next record
-				currentByteStart = application.getNext(currentByteStart);
-				// assign current Employee to next record in file
-				currentEmployee = application.readRecords(currentByteStart);
-			} // end while
-			application.closeReadFile();// close file for reading
-		} // end if
+		int index = model.getAll().indexOf(currentEmployee);
+		if (index < model.getAll().size() - 1) {
+			currentEmployee = model.getAll().get(index + 1);
+			displayRecords(currentEmployee);
+		}
 	}// end nextRecord
 
 	// find byte start in file for last active record
 	private void lastRecord() {
-		// if any active record in file look for first record
-		if (isSomeoneToDisplay()) {
-			// open file for reading
-			application.openReadFile(file.getAbsolutePath());
-			// get byte start in file for last record
-			currentByteStart = application.getLast();
-			// assign current Employee to first record in file
-			currentEmployee = application.readRecords(currentByteStart);
-			application.closeReadFile();// close file for reading
-			// if last record is inactive look for previous record
-			if (currentEmployee.getEmployeeId() == 0)
-				previousRecord();// look for previous record
-		} // end if
+		if (!model.getAll().isEmpty()) {
+			currentEmployee = model.getAll().get(model.getAll().size() - 1);
+			displayRecords(currentEmployee);
+		}
 	}// end lastRecord
 
 	private Employee findEmployee(SearchStrategy strategy, String searchValue) {
-		if (!isSomeoneToDisplay())
-			return null;
-
-		// Start by going to the first record
-		firstRecord();
-		int firstId = currentEmployee.getEmployeeId();
-
-		// Check current record
-		if (strategy.matches(currentEmployee, searchValue)) {
-			return currentEmployee;
-		}
-
-		// Loop until we come back to the first record
-		nextRecord();
-		while (currentEmployee.getEmployeeId() != firstId) {
-			if (strategy.matches(currentEmployee, searchValue)) {
-				return currentEmployee;
-			}
-			nextRecord();
-		}
-
-		// If no match found, return null
-		return null;
+		return model.getAll().stream()
+				.filter(e -> strategy.matches(e, searchValue))
+				.findFirst()
+				.orElse(null);
 	}
 
 	// search Employee by ID
 	public void searchEmployeeById() {
-		try {// try to read correct correct from input
+		try {
 			String input = searchByIdField.getText().trim();
-			// Call the new method with an ID-based strategy
 			Employee found = findEmployee(new IdSearchStrategy(), input);
+
 			if (found != null) {
 				displayRecords(found);
 			} else {
 				JOptionPane.showMessageDialog(null, "Employee not found!");
 			}
 		} catch (NumberFormatException e) {
-			JOptionPane.showMessageDialog(null, "Wrong ID format!");
+			JOptionPane.showMessageDialog(null, "Invalid ID format!");
 		}
-		searchByIdField.setBackground(Color.WHITE);
-		searchByIdField.setText("");
-	}// end searchEmployeeByID
+	}
 
 	// search Employee by surname
 	public void searchEmployeeBySurname() {
 		String input = searchBySurnameField.getText().trim();
-		// Call the new method with a Surname-based strategy
 		Employee found = findEmployee(new SurnameSearchStrategy(), input);
+
 		if (found != null) {
 			displayRecords(found);
 		} else {
 			JOptionPane.showMessageDialog(null, "Employee not found!");
 		}
-		searchBySurnameField.setText("");
-	}// end searchEmployeeBySurname
+	}
 
 	// get next free ID from Employees in the file
 	public int getNextFreeId() {
@@ -521,61 +440,38 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 
 	// add Employee object to fail
 	public void addRecord(Employee newEmployee) {
-		// open file for writing
-		application.openWriteFile(file.getAbsolutePath());
-		// write into a file
-		currentByteStart = application.addRecords(newEmployee);
-		application.closeWriteFile();// close file for writing
-	}// end addRecord
+		model.addEmployee(newEmployee, file.getAbsolutePath());
+	}
 
 	// delete (make inactive - empty) record from file
 	private void deleteRecord() {
-		if (isSomeoneToDisplay()) {// if any active record in file display
-									// message and delete record
-			int returnVal = JOptionPane.showOptionDialog(frame, "Do you want to delete record?", "Delete",
-					JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
-			// if answer yes delete (make inactive - empty) record
+		if (isSomeoneToDisplay()) {
+			int returnVal = JOptionPane.showOptionDialog(
+					frame, "Do you want to delete this record?", "Delete",
+					JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, null, null, null);
+
 			if (returnVal == JOptionPane.YES_OPTION) {
-				// open file for writing
-				application.openWriteFile(file.getAbsolutePath());
-				// delete (make inactive - empty) record in file proper position
-				application.deleteRecords(currentByteStart);
-				application.closeWriteFile();// close file for writing
-				// if any active record in file display next record
-				if (isSomeoneToDisplay()) {
-					nextRecord();// look for next record
-					displayRecords(currentEmployee);
-				} // end if
-			} // end if
-		} // end if
-	}// end deleteDecord
+				model.removeEmployee(currentEmployee, file.getAbsolutePath());
+			}
+		}
+	}
 
 	// create vector of vectors with all Employee details
-	private Vector<Vector<Object>> getAllEmloyees() {
+	private Vector<Vector<Object>> convertToVector(List<Employee> employees) {
 		// vector of Employee objects
 		Vector<Vector<Object>> allEmployee = new Vector<Vector<Object>>();
-		Vector<Object> employeeDetailsPanel;// vector of each employee details
-		long byteStart = currentByteStart;
-		int firstId;
-
-		firstRecord();// look for first record
-		firstId = currentEmployee.getEmployeeId();
-		// loop until all Employees are added to vector
-		do {
-			employeeDetailsPanel = new Vector<Object>();
-			employeeDetailsPanel.addElement(new Integer(currentEmployee.getEmployeeId()));
-			employeeDetailsPanel.addElement(currentEmployee.getPpsNumber());
-			employeeDetailsPanel.addElement(currentEmployee.getSurname());
-			employeeDetailsPanel.addElement(currentEmployee.getFirstName());
-			employeeDetailsPanel.addElement(new Character(currentEmployee.getGender()));
-			employeeDetailsPanel.addElement(currentEmployee.getDepartment());
-			employeeDetailsPanel.addElement(new Double(currentEmployee.getSalary()));
-			employeeDetailsPanel.addElement(new Boolean(currentEmployee.getFullTime()));
-
-			allEmployee.addElement(employeeDetailsPanel);
-			nextRecord();// look for next record
-		} while (firstId != currentEmployee.getEmployeeId());// end do - while
-		currentByteStart = byteStart;
+		for (Employee e : model.getAll()) {
+			Vector<Object> employeeDetailsPanel = new Vector<>();
+			employeeDetailsPanel.add(e.getEmployeeId());
+			employeeDetailsPanel.add(e.getPpsNumber());
+			employeeDetailsPanel.add(e.getSurname());
+			employeeDetailsPanel.add(e.getFirstName());
+			employeeDetailsPanel.add(e.getGender());
+			employeeDetailsPanel.add(e.getDepartment());
+			employeeDetailsPanel.add(e.getSalary());
+			employeeDetailsPanel.add(e.getFullTime());
+			allEmployee.add(employeeDetailsPanel);
+		}
 
 		return allEmployee;
 	}// end getAllEmployees
@@ -599,13 +495,8 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 
 	// check if any of records in file is active - ID is not 0
 	private boolean isSomeoneToDisplay() {
-		boolean someoneToDisplay = false;
-		// open file for reading
-		application.openReadFile(file.getAbsolutePath());
-		// check if any of records in file is active - ID is not 0
-		someoneToDisplay = application.isSomeoneToDisplay();
-		application.closeReadFile();// close file for reading
-		// if no records found clear all text fields and display message
+		boolean someoneToDisplay = !model.getAll().isEmpty();
+
 		if (!someoneToDisplay) {
 			currentEmployee = null;
 			idField.setText("");
@@ -619,16 +510,11 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 			JOptionPane.showMessageDialog(null, "No Employees registered!");
 		}
 		return someoneToDisplay;
-	}// end isSomeoneToDisplay
+	}
 
 	// check for correct PPS format and look if PPS already in use
 	public boolean ppsNumberAlreadyExists(String ppsNumber, long currentByte) {
-		// open file for reading
-		application.openReadFile(file.getAbsolutePath());
-		// look in file if PPS is already in use
-		boolean ppsNumberExist = application.isPpsExist(ppsNumber, currentByte);
-		application.closeReadFile(); // close file
-		return ppsNumberExist;
+		return model.getAll().stream().anyMatch(e -> e.getPpsNumber().equalsIgnoreCase(ppsNumber));
 	}
 
 	// check if file name has extension .dat
@@ -751,165 +637,128 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 	private void openFile() {
 		final JFileChooser fc = new JFileChooser();
 		fc.setDialogTitle("Open");
-		// display files in File Chooser only with extension .dat
 		fc.setFileFilter(datfilter);
-		File newFile; // holds opened file name and path
-		// if old file is not empty or changes has been made, offer user to save
-		// old file
+
+		// If there are unsaved changes, prompt user
 		if (file.length() != 0 || change) {
 			int returnVal = JOptionPane.showOptionDialog(frame, "Do you want to save changes?", "Save",
 					JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
-			// if user wants to save file, save it
 			if (returnVal == JOptionPane.YES_OPTION) {
-				saveFile();// save file
-			} // end if
-		} // end if
+				saveFile();
+			}
+		}
 
 		int returnVal = fc.showOpenDialog(EmployeeDetails.this);
-		// if file been chosen, open it
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			newFile = fc.getSelectedFile();
-			// if old file wasn't saved and its name is generated file name,
-			// delete this file
-			if (file.getName().equals(generatedFileName))
-				file.delete();// delete file
-			file = newFile;// assign opened file to file
-			// open file for reading
-			application.openReadFile(file.getAbsolutePath());
-			firstRecord();// look for first record
+			File newFile = fc.getSelectedFile();
+
+			// Delete auto-generated file if necessary
+			if (file.getName().equals(generatedFileName)) {
+				file.delete();
+			}
+
+			file = newFile; // Update the current file
+			model.loadAllFromFile(file.getAbsolutePath()); // Load employees from file
+			if (!model.getAll().isEmpty()) {
+				currentEmployee = model.getAll().get(0); // Display first employee
+			}
 			displayRecords(currentEmployee);
-			application.closeReadFile();// close file for reading
-		} // end if
-	}// end openFile
+		}
+	}
 
 	// save file
 	private void saveFile() {
-		// if file name is generated file name, save file as 'save as' else save
-		// changes to file
-		if (file.getName().equals(generatedFileName))
-			saveFileAs();// save file as 'save as'
-		else {
-			// if changes has been made to text field offer user to save these
-			// changes
+		if (file.getName().equals(generatedFileName)) {
+			saveFileAs();
+		} else {
 			if (change) {
-				int returnVal = JOptionPane.showOptionDialog(frame, "Do you want to save changes?", "Save",
+				int returnVal = JOptionPane.showOptionDialog(
+						frame, "Do you want to save changes?", "Save",
 						JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
-				// save changes if user choose this option
+
 				if (returnVal == JOptionPane.YES_OPTION) {
-					// save changes if ID field is not empty
+					// Ensure a valid employee exists before saving
 					if (!idField.getText().equals("")) {
-						// open file for writing
-						application.openWriteFile(file.getAbsolutePath());
-						// get changes for current Employee
-						currentEmployee = getChangedDetails();
-						// write changes to file for corresponding Employee
-						// record
-						application.changeRecords(currentEmployee, currentByteStart);
-						application.closeWriteFile();// close file for writing
-					} // end if
-				} // end if
-			} // end if
+						saveCurrentEmployee();
+					}
+				}
+			}
 
 			displayRecords(currentEmployee);
 			setEnabled(false);
-		} // end else
-	}// end saveFile
+		}
+	}
 
 	// save changes to current Employee
 	private void saveChanges() {
-		int returnVal = JOptionPane.showOptionDialog(frame, "Do you want to save changes to current Employee?", "Save",
+		int returnVal = JOptionPane.showOptionDialog(
+				frame, "Do you want to save changes to current Employee?", "Save",
 				JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
-		// if user choose to save changes, save changes
+
 		if (returnVal == JOptionPane.YES_OPTION) {
-			// open file for writing
-			application.openWriteFile(file.getAbsolutePath());
-			// get changes for current Employee
-			currentEmployee = getChangedDetails();
-			// write changes to file for corresponding Employee record
-			application.changeRecords(currentEmployee, currentByteStart);
-			application.closeWriteFile();// close file for writing
-			changesMade = false;// state that all changes has bee saved
-		} // end if
+			saveCurrentEmployee();
+		}
+
 		displayRecords(currentEmployee);
 		setEnabled(false);
-	}// end saveChanges
+	}
 
 	// save file as 'save as'
 	private void saveFileAs() {
 		final JFileChooser fc = new JFileChooser();
-		File newFile;
 		String defaultFileName = "new_Employee.dat";
+
 		fc.setDialogTitle("Save As");
-		// display files only with .dat extension
 		fc.setFileFilter(datfilter);
 		fc.setApproveButtonText("Save");
 		fc.setSelectedFile(new File(defaultFileName));
 
 		int returnVal = fc.showSaveDialog(EmployeeDetails.this);
-		// if file has chosen or written, save old file in new file
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			newFile = fc.getSelectedFile();
-			// check for file name
-			if (!checkFileName(newFile)) {
-				// add .dat extension if it was not there
-				newFile = new File(newFile.getAbsolutePath() + ".dat");
-				// create new file
-				application.createFile(newFile.getAbsolutePath());
-			} // end id
-			else
-				// create new file
-				application.createFile(newFile.getAbsolutePath());
 
-			try {// try to copy old file to new file
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File newFile = fc.getSelectedFile();
+
+			// Ensure the file has a .dat extension
+			if (!checkFileName(newFile)) {
+				newFile = new File(newFile.getAbsolutePath() + ".dat");
+			}
+
+			// Delegate file handling to EmployeeDataModel
+			model.loadAllFromFile(file.getAbsolutePath());
+
+			try {
 				Files.copy(file.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-				// if old file name was generated file name, delete it
-				if (file.getName().equals(generatedFileName))
-					file.delete();// delete file
-				file = newFile;// assign new file to file
-			} // end try
-			catch (IOException e) {
-			} // end catch
-		} // end if
+				if (file.getName().equals(generatedFileName)) {
+					file.delete(); // Delete the auto-generated file
+				}
+				file = newFile; // Set the new file as the active one
+			} catch (IOException e) {
+				JOptionPane.showMessageDialog(frame, "Error saving file.", "Save Error", JOptionPane.ERROR_MESSAGE);
+			}
+		}
+
 		changesMade = false;
-	}// end saveFileAs
+	}
+
+	private void saveCurrentEmployee() {
+		Employee newDetails = getChangedDetails();
+		model.updateEmployee(currentEmployee, newDetails, file.getAbsolutePath());
+		changesMade = false;
+	}
 
 	// allow to save changes to file when exiting the application
 	private void exitApp() {
-		// if file is not empty allow to save changes
-		if (file.length() != 0) {
-			if (changesMade) {
-				int returnVal = JOptionPane.showOptionDialog(frame, "Do you want to save changes?", "Save",
-						JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
-				// if user chooses to save file, save file
-				if (returnVal == JOptionPane.YES_OPTION) {
-					saveFile();// save file
-					// delete generated file if user saved details to other file
-					if (file.getName().equals(generatedFileName))
-						file.delete();// delete file
-					System.exit(0);// exit application
-				} // end if
-					// else exit application
-				else if (returnVal == JOptionPane.NO_OPTION) {
-					// delete generated file if user chooses not to save file
-					if (file.getName().equals(generatedFileName))
-						file.delete();// delete file
-					System.exit(0);// exit application
-				} // end else if
-			} // end if
-			else {
-				// delete generated file if user chooses not to save file
-				if (file.getName().equals(generatedFileName))
-					file.delete();// delete file
-				System.exit(0);// exit application
-			} // end else
-				// else exit application
-		} else {
-			// delete generated file if user chooses not to save file
-			if (file.getName().equals(generatedFileName))
-				file.delete();// delete file
-			System.exit(0);// exit application
-		} // end else
-	}// end exitApp
+		int returnVal = JOptionPane.showConfirmDialog(
+				frame, "Do you want to save changes before exiting?", "Exit",
+				JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+		if (returnVal == JOptionPane.YES_OPTION) {
+			saveFile();
+			System.exit(0);
+		} else if (returnVal == JOptionPane.NO_OPTION) {
+			System.exit(0);
+		}
+	}
 
 	// generate 20 character long file name
 	private String getFileName() {
@@ -931,93 +780,79 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 		// assign generated file name to file
 		file = new File(generatedFileName);
 		// create file
-		application.createFile(file.getName());
+		model.loadAllFromFile(file.getAbsolutePath());
 	}// end createRandomFile
 
 	// action listener for buttons, text field and menu items
 	public void actionPerformed(ActionEvent e) {
-
-		if (e.getSource() == closeApp) {
-			if (checkInput() && !checkForChanges())
-				exitApp();
-		} else if (e.getSource() == open) {
-			if (checkInput() && !checkForChanges())
-				openFile();
-		} else if (e.getSource() == save) {
-			if (checkInput() && !checkForChanges())
-				saveFile();
-			change = false;
-		} else if (e.getSource() == saveAs) {
-			if (checkInput() && !checkForChanges())
-				saveFileAs();
-			change = false;
-		} else if (e.getSource() == searchById) {
-			if (checkInput() && !checkForChanges())
-				displaySearchByIdDialog();
-		} else if (e.getSource() == searchBySurname) {
-			if (checkInput() && !checkForChanges())
-				displaySearchBySurnameDialog();
-		} else if (e.getSource() == searchById || e.getSource() == searchByIdField)  {
-            if (checkInput() && !checkForChanges()) {
-                // BEFORE: new SearchByIdDialog(this);
-                DialogFactory factory = new SearchByIdDialogFactory();
-                JDialog dialog = factory.createDialog(this);
-                dialog.setVisible(true);
-            }
-        } else if (e.getSource() == searchSurname || e.getSource() == searchBySurnameField) {
-            if (checkInput() && !checkForChanges()) {
-                DialogFactory factory = new SearchBySurnameDialogFactory();
-				JDialog dialog = factory.createDialog(this);
-				dialog.setVisible(true);
-        	}
+		if (!checkInput() || checkForChanges()) {
+			return;
 		}
-		else if (e.getSource() == saveChange) {
-			if (checkInput() && !checkForChanges())
-				;
-		} else if (e.getSource() == cancelChange)
+
+		Object source = e.getSource();
+
+		if (source == closeApp) {
+			exitApp();
+		} else if (source == open) {
+			openFile();
+		} else if (source == save) {
+			saveFile();
+			change = false;
+		} else if (source == saveAs) {
+			saveFileAs();
+			change = false;
+		} else if (source == searchById || source == searchByIdField) {
+			openSearchDialog(new SearchByIdDialogFactory());
+		} else if (source == searchSurname || source == searchBySurnameField) {
+			openSearchDialog(new SearchBySurnameDialogFactory());
+		} else if (source == saveChange) {
+			saveChanges();
+		} else if (source == cancelChange) {
 			cancelChange();
-		else if (e.getSource() == firstItem || e.getSource() == first) {
-			if (checkInput() && !checkForChanges()) {
-				firstRecord();
-				displayRecords(currentEmployee);
-			}
-		} else if (e.getSource() == prevItem || e.getSource() == previous) {
-			if (checkInput() && !checkForChanges()) {
-				previousRecord();
-				displayRecords(currentEmployee);
-			}
-		} else if (e.getSource() == nextItem || e.getSource() == next) {
-			if (checkInput() && !checkForChanges()) {
-				nextRecord();
-				displayRecords(currentEmployee);
-			}
-		} else if (e.getSource() == lastItem || e.getSource() == last) {
-			if (checkInput() && !checkForChanges()) {
-				lastRecord();
-				displayRecords(currentEmployee);
-			}
-		} else if (e.getSource() == listAll || e.getSource() == displayAll) {
-			if (checkInput() && !checkForChanges())
-				if (isSomeoneToDisplay())
-					displayEmployeeSummaryDialog();
-		} else if (e.getSource() == create || e.getSource() == add) {
-			if (checkInput() && !checkForChanges()) {
-				// BEFORE: new AddRecordDialog(this);
-				DialogFactory factory = new AddDialogFactory();
-				JDialog dialog = factory.createDialog(this);
-				dialog.setVisible(true);
-			}
-		} else if (e.getSource() == modify || e.getSource() == edit) {
-			if (checkInput() && !checkForChanges())
-				editDetails();
-		} else if (e.getSource() == delete || e.getSource() == deleteButton) {
-			if (checkInput() && !checkForChanges())
-				deleteRecord();
-		} else if (e.getSource() == searchBySurname) {
-			if (checkInput() && !checkForChanges())
-				new SearchBySurnameDialog(EmployeeDetails.this);
+		} else if (source == firstItem || source == first) {
+			navigateAndDisplay(() -> firstRecord());
+		} else if (source == prevItem || source == previous) {
+			navigateAndDisplay(() -> previousRecord());
+		} else if (source == nextItem || source == next) {
+			navigateAndDisplay(() -> nextRecord());
+		} else if (source == lastItem || source == last) {
+			navigateAndDisplay(() -> lastRecord());
+		} else if (source == listAll || source == displayAll) {
+			displayEmployeeSummaryDialog();
+		} else if (source == create || source == add) {
+			openDialog(new AddDialogFactory());
+		} else if (source == modify || source == edit) {
+			editDetails();
+		} else if (source == delete || source == deleteButton) {
+			deleteRecord();
 		}
 	}// end actionPerformed
+
+	private void openSearchDialog(DialogFactory factory) {
+		JDialog dialog = factory.createDialog(this);
+		dialog.setVisible(true);
+	}
+
+	private void navigateAndDisplay(Runnable navigationMethod) {
+		navigationMethod.run();
+		displayRecords(currentEmployee);
+	}
+
+	private void openDialog(DialogFactory factory) {
+		JDialog dialog = factory.createDialog(this);
+		dialog.setVisible(true);
+	}
+
+	private void displayEmployeeSummaryDialog() {
+		List<Employee> employees = model.getAll(); // Fetch employees from the model
+
+		if (employees.isEmpty()) {
+			JOptionPane.showMessageDialog(null, "No Employees registered!");
+		} else {
+			Vector<Vector<Object>> employeeData = convertToVector(employees);
+			new EmployeeSummaryDialog(employeeData);
+		}
+	}
 
 	// content pane for main dialog
 	private void createContentPane() {
