@@ -843,23 +843,37 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 		// if file has chosen or written, save old file in new file
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			newFile = fc.getSelectedFile();
+
+			if (!newFile.getName().toLowerCase().endsWith(".dat")) {
+            newFile = new File(newFile.getAbsolutePath() + ".dat");
+        }
+
+		  if (newFile.exists()) {
+            JOptionPane.showMessageDialog(
+                this,
+                "A file with this name already exists.\nPlease choose a different name.",
+                "File Already Exists",
+                JOptionPane.WARNING_MESSAGE
+            );
+            return; // **Stops execution to prevent overwriting**
+        }
 			// check for file name
 			if (!checkFileName(newFile)) {
-				// add .dat extension if it was not there
-				newFile = new File(newFile.getAbsolutePath() + ".dat");
-				// create new file
-				application.createFile(newFile.getAbsolutePath());
-			} // end id
-			else
-				// create new file
-				application.createFile(newFile.getAbsolutePath());
-
+				JOptionPane.showMessageDialog(
+						this,
+						"Invalid file name. Please enter a valid name.",
+						"Invalid File Name",
+						JOptionPane.ERROR_MESSAGE);
+				return; // **Stops execution if the file name is invalid**
+			}
+				
 			try {// try to copy old file to new file
 				Files.copy(file.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 				// if old file name was generated file name, delete it
 				if (file.getName().equals(generatedFileName))
 					file.delete();// delete file
 				file = newFile;// assign new file to file
+				EmployeeFactory.setFilePath(file.getAbsolutePath());
 			} // end try
 			catch (IOException e) {
 			} // end catch

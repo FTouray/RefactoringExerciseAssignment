@@ -109,7 +109,7 @@ public class AddRecordDialog extends JDialog implements ActionListener {
 	public void addRecord() {
 		boolean fullTime = false;
 		Employee theEmployee;
-
+		
 		if (((String) fullTimeCombo.getSelectedItem()).equalsIgnoreCase("Yes"))
 			fullTime = true;
 		// create new Employee record with details from text fields

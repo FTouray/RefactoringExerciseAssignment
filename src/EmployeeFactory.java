@@ -1,3 +1,5 @@
+import java.io.File;
+
 public class EmployeeFactory {
 
     private static final RandomFile application = RandomFile.getInstance();
@@ -94,18 +96,25 @@ public class EmployeeFactory {
          * - Checking if PPS is already in the file
          */
         private static boolean checkPpsAvailability(String ppsNumber, long currentByte) {
-            // (A) Basic format check
+            // Basic format check
             if (!isFormatValid(ppsNumber)) {
                 return false;
             }
-            // (B) Check the file to see if PPS is used, skipping 'currentByte' if necessary
-            try {
-                if (filePath == null || filePath.isEmpty()) {
-                    System.out.println("ERROR: File path not set!");
-                    return false;
-                }
+            // Check the file to see if PPS is used, skipping 'currentByte' if necessary
+            if (filePath == null || filePath.isEmpty()) {
+                System.out.println("ERROR: File path not set!");
+                return true;
+            }
 
-                application.openReadFile(filePath);
+            // Check if the file actually exists
+        File file = new File(filePath);
+        if (!file.exists()) {
+            System.out.println("⚠️ WARNING: File does not exist yet. Assuming PPS is available.");
+            return true; // Assume PPS is available if file doesn't exist
+        }
+            
+            try {
+                                application.openReadFile(filePath);
                 boolean used = application.isPpsExist(ppsNumber, currentByte);
                 application.closeReadFile();
                 return !used; // if used == true => availability is false
