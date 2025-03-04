@@ -766,6 +766,7 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 			if (file.getName().equals(generatedFileName))
 				file.delete();// delete file
 			file = newFile;// assign opened file to file
+			EmployeeFactory.setFilePath(file.getAbsolutePath());
 			// open file for reading
 			application.openReadFile(file.getAbsolutePath());
 			firstRecord();// look for first record
@@ -781,6 +782,7 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 		if (file.getName().equals(generatedFileName))
 			saveFileAs();// save file as 'save as'
 		else {
+			EmployeeFactory.setFilePath(file.getAbsolutePath());
 			// if changes has been made to text field offer user to save these
 			// changes
 			if (change) {
