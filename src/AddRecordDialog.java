@@ -23,7 +23,7 @@ import javax.swing.JTextField;
 import net.miginfocom.swing.MigLayout;
 
 public class AddRecordDialog extends JDialog implements ActionListener {
-	JTextField idField, ppsField, surnameField, firstNameField, salaryField;
+	JTextField idField, ppsNumberField, surnameField, firstNameField, salaryField;
 	JComboBox<String> genderCombo, departmentCombo, fullTimeCombo;
 	JButton save, cancel;
 	EmployeeDetails parent;
@@ -60,7 +60,7 @@ public class AddRecordDialog extends JDialog implements ActionListener {
 		idField.setEditable(false);
 
 		empDetails.add(new JLabel("PPS Number:"), "growx, pushx");
-		empDetails.add(ppsField = new JTextField(20), "growx, pushx, wrap");
+		empDetails.add(ppsNumberField = new JTextField(20), "growx, pushx, wrap");
 
 		empDetails.add(new JLabel("Surname:"), "growx, pushx");
 		empDetails.add(surnameField = new JTextField(20), "growx, pushx, wrap");
@@ -95,7 +95,7 @@ public class AddRecordDialog extends JDialog implements ActionListener {
 			} // end if
 			else if (empDetails.getComponent(i) instanceof JTextField) {
 				field = (JTextField) empDetails.getComponent(i);
-				if (field == ppsField)
+				if (field == ppsNumberField)
 					field.setDocument(new JTextFieldLimit(9));
 				else
 					field.setDocument(new JTextFieldLimit(20));
@@ -113,65 +113,49 @@ public class AddRecordDialog extends JDialog implements ActionListener {
 		if (((String) fullTimeCombo.getSelectedItem()).equalsIgnoreCase("Yes"))
 			fullTime = true;
 		// create new Employee record with details from text fields
-		theEmployee = new Employee(Integer.parseInt(idField.getText()), ppsField.getText().toUpperCase(),
-				surnameField.getText().toUpperCase(),
-				firstNameField.getText().toUpperCase(), genderCombo.getSelectedItem().toString().charAt(0),
-				departmentCombo.getSelectedItem().toString(), Double.parseDouble(salaryField.getText()), fullTime);
+		theEmployee = EmployeeFactory.createEmployee(Integer.parseInt(idField.getText()), ppsNumberField.getText(),
+				surnameField.getText(), firstNameField.getText(), genderCombo.getSelectedItem().toString().charAt(0),
+				departmentCombo.getSelectedItem().toString(), Double.parseDouble(salaryField.getText()), fullTime, 
+				this.parent.getCurrentByteStart());
 		this.parent.currentEmployee = theEmployee;
 		this.parent.addRecord(theEmployee);
 		this.parent.displayRecords(theEmployee);
 	}
 
 	// check for input in text fields
-	public boolean checkInput() {
+	private boolean checkInput() {
 		boolean valid = true;
-		// if any of inputs are in wrong format, colour text field and display message
-		if (ppsField.getText().equals("")) {
-			ppsField.setBackground(new Color(255, 150, 150));
+		// if any of inputs are in wrong format, colour text field and display
+		// message
+		if (ppsNumberField.isEditable() && ppsNumberField.getText().trim().isEmpty()) {
+			ppsNumberField.setBackground(new Color(255, 150, 150));
 			valid = false;
 		} // end if
-		if (this.parent.correctPps(this.ppsField.getText().trim(), -1)) {
-			ppsField.setBackground(new Color(255, 150, 150));
-			valid = false;
-		} // end if
-		if (surnameField.getText().isEmpty()) {
+		if (surnameField.isEditable() && surnameField.getText().trim().isEmpty()) {
 			surnameField.setBackground(new Color(255, 150, 150));
 			valid = false;
 		} // end if
-		if (firstNameField.getText().isEmpty()) {
+		if (firstNameField.isEditable() && firstNameField.getText().trim().isEmpty()) {
 			firstNameField.setBackground(new Color(255, 150, 150));
 			valid = false;
 		} // end if
-		if (genderCombo.getSelectedIndex() == 0) {
-			genderCombo.setBackground(new Color(255, 150, 150));
-			valid = false;
-		} // end if
-		if (departmentCombo.getSelectedIndex() == 0) {
-			departmentCombo.setBackground(new Color(255, 150, 150));
-			valid = false;
-		} // end if
-		try {// try to get values from text field
-			Double.parseDouble(salaryField.getText());
-			// check if salary is greater than 0
-			if (Double.parseDouble(salaryField.getText()) < 0) {
-				salaryField.setBackground(new Color(255, 150, 150));
-				valid = false;
-			} // end if
-		} // end try
-		catch (NumberFormatException num) {
+		if (salaryField.isEditable() && salaryField.getText().trim().isEmpty()) {
 			salaryField.setBackground(new Color(255, 150, 150));
 			valid = false;
-		} // end catch
-		if (fullTimeCombo.getSelectedIndex() == 0) {
-			fullTimeCombo.setBackground(new Color(255, 150, 150));
-			valid = false;
 		} // end if
+
+		if (!valid)
+			JOptionPane.showMessageDialog(null, "\"Please fill required fields!\"");
+		// set text field to white colour if text fields are editable
+		if (ppsNumberField.isEditable())
+			setToWhite();
+
 		return valid;
 	}// end checkInput
 
 	// set text field to white colour
 	public void setToWhite() {
-		ppsField.setBackground(Color.WHITE);
+		ppsNumberField.setBackground(Color.WHITE);
 		surnameField.setBackground(Color.WHITE);
 		firstNameField.setBackground(Color.WHITE);
 		salaryField.setBackground(Color.WHITE);

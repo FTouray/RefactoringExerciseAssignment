@@ -536,10 +536,9 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 		if (((String) fullTimeCombo.getSelectedItem()).equalsIgnoreCase("Yes"))
 			fullTime = true;
 
-		theEmployee = new Employee(Integer.parseInt(idField.getText()), ppsNumberField.getText().toUpperCase(),
-				surnameField.getText().toUpperCase(), firstNameField.getText().toUpperCase(),
-				genderCombo.getSelectedItem().toString().charAt(0), departmentCombo.getSelectedItem().toString(),
-				Double.parseDouble(salaryField.getText()), fullTime);
+		theEmployee = EmployeeFactory.createEmployee(Integer.parseInt(idField.getText()), ppsNumberField.getText(),
+				surnameField.getText(), firstNameField.getText(), genderCombo.getSelectedItem().toString().charAt(0), departmentCombo.getSelectedItem().toString(),
+				Double.parseDouble(salaryField.getText()), fullTime, currentByteStart);
 
 		return theEmployee;
 	}// end getChangedDetails
@@ -646,31 +645,6 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 		return someoneToDisplay;
 	}// end isSomeoneToDisplay
 
-	// check for correct PPS format and look if PPS already in use
-	public boolean correctPps(String ppsNumber, long currentByte) {
-		boolean ppsNumberExist = false;
-		// check for correct PPS format based on assignment description
-		if (ppsNumber.length() == 8 || ppsNumber.length() == 9) {
-			if (Character.isDigit(ppsNumber.charAt(0)) && Character.isDigit(ppsNumber.charAt(1))
-					&& Character.isDigit(ppsNumber.charAt(2)) && Character.isDigit(ppsNumber.charAt(3))
-					&& Character.isDigit(ppsNumber.charAt(4)) && Character.isDigit(ppsNumber.charAt(5))
-					&& Character.isDigit(ppsNumber.charAt(6)) && Character.isLetter(ppsNumber.charAt(7))
-					&& (ppsNumber.length() == 8 || Character.isLetter(ppsNumber.charAt(8)))) {
-				// open file for reading
-				application.openReadFile(file.getAbsolutePath());
-				// look in file is PPS already in use
-				ppsNumberExist = application.isPpsExist(ppsNumber, currentByte);
-				application.closeReadFile();// close file for reading
-			} // end if
-			else
-				ppsNumberExist = true;
-		} // end if
-		else
-			ppsNumberExist = true;
-
-		return ppsNumberExist;
-	}// end correctPPS
-
 	// check if file name has extension .dat
 	private boolean checkFileName(File fileName) {
 		boolean checkFile = false;
@@ -710,10 +684,6 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 			ppsNumberField.setBackground(new Color(255, 150, 150));
 			valid = false;
 		} // end if
-		if (ppsNumberField.isEditable() && correctPps(ppsNumberField.getText().trim(), currentByteStart)) {
-			ppsNumberField.setBackground(new Color(255, 150, 150));
-			valid = false;
-		} // end if
 		if (surnameField.isEditable() && surnameField.getText().trim().isEmpty()) {
 			surnameField.setBackground(new Color(255, 150, 150));
 			valid = false;
@@ -722,35 +692,13 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 			firstNameField.setBackground(new Color(255, 150, 150));
 			valid = false;
 		} // end if
-		if (genderCombo.getSelectedIndex() == 0 && genderCombo.isEnabled()) {
-			genderCombo.setBackground(new Color(255, 150, 150));
+		if (salaryField.isEditable() && salaryField.getText().trim().isEmpty()) {
+			salaryField.setBackground(new Color(255, 150, 150));
 			valid = false;
 		} // end if
-		if (departmentCombo.getSelectedIndex() == 0 && departmentCombo.isEnabled()) {
-			departmentCombo.setBackground(new Color(255, 150, 150));
-			valid = false;
-		} // end if
-		try {// try to get values from text field
-			Double.parseDouble(salaryField.getText());
-			// check if salary is greater than 0
-			if (Double.parseDouble(salaryField.getText()) < 0) {
-				salaryField.setBackground(new Color(255, 150, 150));
-				valid = false;
-			} // end if
-		} // end try
-		catch (NumberFormatException num) {
-			if (salaryField.isEditable()) {
-				salaryField.setBackground(new Color(255, 150, 150));
-				valid = false;
-			} // end if
-		} // end catch
-		if (fullTimeCombo.getSelectedIndex() == 0 && fullTimeCombo.isEnabled()) {
-			fullTimeCombo.setBackground(new Color(255, 150, 150));
-			valid = false;
-		} // end if
-			// display message if any input or format is wrong
+			
 		if (!valid)
-			JOptionPane.showMessageDialog(null, "Wrong values or format! Please check!");
+			JOptionPane.showMessageDialog(null, "\"Please fill required fields!\"");
 		// set text field to white colour if text fields are editable
 		if (ppsNumberField.isEditable())
 			setToWhite();
@@ -1048,6 +996,10 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 				new SearchBySurnameDialog(EmployeeDetails.this);
 		}
 	}// end actionPerformed
+
+	public long getCurrentByteStart() {
+		return currentByteStart;
+	}
 
 	// content pane for main dialog
 	private void createContentPane() {
