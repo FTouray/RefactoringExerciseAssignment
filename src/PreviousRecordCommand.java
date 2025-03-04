@@ -7,7 +7,7 @@ public class PreviousRecordCommand implements Command {
 
     @Override
     public void execute() {
-        employeeDetails.previousRecord(); // Moves to the previous employee
+        employeeDetails.triggerPreviousRecord(); // Moves to the previous employee
         employeeDetails.displayRecords(employeeDetails.currentEmployee);
     }
 }

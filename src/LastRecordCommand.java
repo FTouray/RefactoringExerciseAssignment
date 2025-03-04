@@ -1,13 +1,12 @@
-public class NextRecordCommand implements Command {
+public class LastRecordCommand {
     private EmployeeDetails employeeDetails;
 
-    public NextRecordCommand(EmployeeDetails employeeDetails) {
+    public LastRecordCommand(EmployeeDetails employeeDetails) {
         this.employeeDetails = employeeDetails;
     }
 
-    @Override
     public void execute() {
-        employeeDetails.triggerNextRecord(); // Moves to the next employee
+        employeeDetails.triggerLastRecord();
         employeeDetails.displayRecords(employeeDetails.currentEmployee);
     }
 }

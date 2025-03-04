@@ -1,7 +1,7 @@
-public class AddEmployeeCommand implements Command {
+public class AddRecordCommand implements Command {
     private EmployeeDetails employeeDetails;
 
-    public AddEmployeeCommand(EmployeeDetails employeeDetails) {
+    public AddRecordCommand(EmployeeDetails employeeDetails) {
         this.employeeDetails = employeeDetails;
     }
 

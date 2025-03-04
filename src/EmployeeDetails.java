@@ -930,7 +930,6 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 
 	// action listener for buttons, text field and menu items
 	public void actionPerformed(ActionEvent e) {
-
 		if (e.getSource() == closeApp) {
 			if (checkInput() && !checkForChanges())
 				exitApp();
@@ -946,61 +945,82 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 				saveFileAs();
 			change = false;
 		} else if (e.getSource() == searchById) {
-			if (checkInput() && !checkForChanges())
-				displaySearchByIdDialog();
+			new SearchByIdCommand(this).execute();
 		} else if (e.getSource() == searchBySurname) {
+			new SearchBySurnameCommand(this).execute();
+		} else if (e.getSource() == searchId || e.getSource() == searchByIdField) {
+			new SearchByIdCommand(this).execute();
+		} else if (e.getSource() == searchSurname || e.getSource() == searchBySurnameField) {
+			new SearchBySurnameCommand(this).execute();
+		} else if (e.getSource() == saveChange) {
 			if (checkInput() && !checkForChanges())
-				displaySearchBySurnameDialog();
-		} else if (e.getSource() == searchId || e.getSource() == searchByIdField)
-			searchEmployeeById();
-		else if (e.getSource() == searchSurname || e.getSource() == searchBySurnameField)
-			searchEmployeeBySurname();
-		else if (e.getSource() == saveChange) {
-			if (checkInput() && !checkForChanges())
-				;
-		} else if (e.getSource() == cancelChange)
+				saveChanges();
+		} else if (e.getSource() == cancelChange) {
 			cancelChange();
-		else if (e.getSource() == firstItem || e.getSource() == first) {
-			if (checkInput() && !checkForChanges()) {
-				firstRecord();
-				displayRecords(currentEmployee);
-			}
+		} else if (e.getSource() == firstItem || e.getSource() == first) {
+			new FirstRecordCommand(this).execute();
 		} else if (e.getSource() == prevItem || e.getSource() == previous) {
-			if (checkInput() && !checkForChanges()) {
-				previousRecord();
-				displayRecords(currentEmployee);
-			}
+			new PreviousRecordCommand(this).execute();
 		} else if (e.getSource() == nextItem || e.getSource() == next) {
-			if (checkInput() && !checkForChanges()) {
-				nextRecord();
-				displayRecords(currentEmployee);
-			}
+			new NextRecordCommand(this).execute();
 		} else if (e.getSource() == lastItem || e.getSource() == last) {
-			if (checkInput() && !checkForChanges()) {
-				lastRecord();
-				displayRecords(currentEmployee);
-			}
+			new LastRecordCommand(this).execute();
 		} else if (e.getSource() == listAll || e.getSource() == displayAll) {
-			if (checkInput() && !checkForChanges())
+			if (checkInput() && !checkForChanges()) {
 				if (isSomeoneToDisplay())
 					displayEmployeeSummaryDialog();
+			}
 		} else if (e.getSource() == create || e.getSource() == add) {
-			if (checkInput() && !checkForChanges())
-				new AddRecordDialog(EmployeeDetails.this);
+			new AddRecordCommand(this).execute();
 		} else if (e.getSource() == modify || e.getSource() == edit) {
-			if (checkInput() && !checkForChanges())
-				editDetails();
+			new EditRecordCommand(this).execute();
 		} else if (e.getSource() == delete || e.getSource() == deleteButton) {
-			if (checkInput() && !checkForChanges())
-				deleteRecord();
-		} else if (e.getSource() == searchBySurname) {
-			if (checkInput() && !checkForChanges())
-				new SearchBySurnameDialog(EmployeeDetails.this);
+			new DeleteRecordCommand(this).execute();
 		}
-	}// end actionPerformed
+	}	// end actionPerformed
 
 	public long getCurrentByteStart() {
 		return currentByteStart;
+	}
+
+	// Public wrapper for deleteRecord()
+	public void triggerDeleteRecord() {
+		deleteRecord();
+	}
+
+	// Public wrapper for editDetails()
+	public void triggerEditDetails() {
+		editDetails();
+	}
+
+	// Public wrapper for nextRecord()
+	public void triggerNextRecord() {
+		nextRecord();
+	}
+
+	// Public wrapper for previousRecord()
+	public void triggerPreviousRecord() {
+		previousRecord();
+	}
+
+	// Public wrapper for firstRecord()
+	public void triggerFirstRecord() {
+		firstRecord();
+	}
+
+	// Public wrapper for lastRecord()
+	public void triggerLastRecord() {
+		lastRecord();
+	}
+
+	// Public wrapper for displaySearchByIdDialog()
+	public void triggerSearchByIdDialog() {
+		displaySearchByIdDialog();
+	}
+
+	// Public wrapper for displaySearchBySurnameDialog()
+	public void triggerSearchBySurnameDialog() {
+		displaySearchBySurnameDialog();
 	}
 
 	// content pane for main dialog
