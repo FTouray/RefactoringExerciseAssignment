@@ -109,7 +109,7 @@ public class EmployeeFactory {
             // Check if the file actually exists
         File file = new File(filePath);
         if (!file.exists()) {
-            System.out.println("⚠️ WARNING: File does not exist yet. Assuming PPS is available.");
+            System.out.println("WARNING: File does not exist yet. Assuming PPS is available.");
             return true; // Assume PPS is available if file doesn't exist
         }
             

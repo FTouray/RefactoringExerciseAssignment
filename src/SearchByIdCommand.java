@@ -7,6 +7,8 @@ public class SearchByIdCommand implements Command {
 
     @Override
     public void execute() {
-        employeeDetails.triggerSearchByIdDialog();
+        // Use SearchContext with SearchByIdStrategy
+        SearchContext searchContext = new SearchContext(new SearchByIdStrategy(employeeDetails));
+        searchContext.executeSearch(employeeDetails.searchByIdField.getText().trim());
     }
 }

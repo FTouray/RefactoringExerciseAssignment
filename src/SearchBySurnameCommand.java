@@ -7,6 +7,8 @@ public class SearchBySurnameCommand implements Command {
 
     @Override
     public void execute() {
-        employeeDetails.triggerSearchBySurnameDialog();
+        // Use SearchContext with SearchBySurnameStrategy
+        SearchContext searchContext = new SearchContext(new SearchBySurnameStrategy(employeeDetails));
+        searchContext.executeSearch(employeeDetails.searchBySurnameField.getText().trim());
     }
 }

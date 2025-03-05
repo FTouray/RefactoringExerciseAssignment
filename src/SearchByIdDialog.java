@@ -78,9 +78,8 @@ public class SearchByIdDialog extends JDialog implements ActionListener {
 			// try get correct valus from text field
 			try {
 				Double.parseDouble(searchField.getText());
-				this.parent.searchByIdField.setText(searchField.getText());
-				// search Employee by ID
-				this.parent.searchEmployeeById();
+				SearchContext searchContext = new SearchContext(new SearchByIdStrategy(parent));
+				searchContext.executeSearch(searchField.getText()); // Execute the search
 				dispose();// dispose dialog
 			}// end try
 			catch (NumberFormatException num) {

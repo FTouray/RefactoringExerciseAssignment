@@ -1,7 +1,5 @@
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.ArrayList;
 import javax.swing.JOptionPane;
 
 public class RandomFile {
@@ -17,31 +15,24 @@ public class RandomFile {
 	}
 
 	// Public method to get the single instance (thread-safe)
-	public static synchronized RandomFile getInstance() {
+	public static RandomFile getInstance() {
 		if (instance == null) {
-			instance = new RandomFile();
+			synchronized (RandomFile.class) {
+				if (instance == null) {
+					instance = new RandomFile();
+				}
+			}
 		}
 		return instance;
 	}
 
 	// Create new file
 	public void createFile(String fileName) {
-		RandomAccessFile file = null;
-		try {
-			file = new RandomAccessFile(fileName, "rw");
+		try (RandomAccessFile file = new RandomAccessFile(fileName, "rw")) {
+			// File created successfully
 		} catch (IOException ioException) {
-			JOptionPane.showMessageDialog(null, "Error processing file!");
-			System.exit(1);
-		} finally {
-			try {
-				if (file != null) {
-					file.close(); // close file
-				}
-			} catch (IOException ioException) {
-				JOptionPane.showMessageDialog(null, "Error closing file!");
-				System.exit(1);
-			}
-		}
+			JOptionPane.showMessageDialog(null, "Error creating file!");
+		} 
 	} // end createFile
 
 	// Open file for adding or changing records
