@@ -960,10 +960,16 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 			if (checkInput() && !checkForChanges())
 				saveFileAs();
 			change = false;
-		} else if (e.getSource() == searchId || e.getSource() == searchByIdField) {
-			new SearchByIdCommand(this, searchContext).execute();
+		}  else if (e.getSource() == searchById) {
+			if (checkInput() && !checkForChanges())
+				new SearchByIdCommand(this, searchContext, true).execute();
+		} else if (e.getSource() == searchBySurname) {
+			if (checkInput() && !checkForChanges())
+				new SearchBySurnameCommand(this, searchContext, true).execute();
+		}else if (e.getSource() == searchId || e.getSource() == searchByIdField) {
+			new SearchByIdCommand(this, searchContext, false).execute();
 		} else if (e.getSource() == searchSurname || e.getSource() == searchBySurnameField) {
-			new SearchBySurnameCommand(this, searchContext).execute();
+			new SearchBySurnameCommand(this, searchContext, false).execute();
 		} else if (e.getSource() == saveChange) {
 			if (checkInput() && !checkForChanges())
 				saveChanges();
