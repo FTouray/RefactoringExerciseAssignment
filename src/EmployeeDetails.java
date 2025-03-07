@@ -42,6 +42,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -71,6 +72,7 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 			saveChange, cancelChange;
 	private JComboBox<String> genderCombo, departmentCombo, fullTimeCombo;
 	private JTextField idField, ppsNumberField, surnameField, firstNameField, salaryField;
+	private SearchContext searchContext = new SearchContext();
 	private static EmployeeDetails frame = new EmployeeDetails();
 	// font for labels, text fields and combo boxes
 	Font font1 = new Font("SansSerif", Font.BOLD, 16);
@@ -343,17 +345,17 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 			new EmployeeSummaryDialog(getAllEmloyees());
 	}// end displaySummaryDialog
 
-	// display search by ID dialog
-	private void displaySearchByIdDialog() {
-		if (isSomeoneToDisplay())
-			new SearchByIdDialog(EmployeeDetails.this);
-	}// end displaySearchByIdDialog
+	// // display search by ID dialog
+	// private void displaySearchByIdDialog() {
+	// 	if (isSomeoneToDisplay())
+	// 		new SearchByIdDialog(EmployeeDetails.this);
+	// }// end displaySearchByIdDialog
 
-	// display search by surname dialog
-	private void displaySearchBySurnameDialog() {
-		if (isSomeoneToDisplay())
-			new SearchBySurnameDialog(EmployeeDetails.this);
-	}// end displaySearchBySurnameDialog
+	// // display search by surname dialog
+	// private void displaySearchBySurnameDialog() {
+	// 	if (isSomeoneToDisplay())
+	// 		new SearchBySurnameDialog(EmployeeDetails.this);
+	// }// end displaySearchBySurnameDialog
 
 	// find byte start in file for first active record
 	private void firstRecord() {
@@ -958,14 +960,10 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 			if (checkInput() && !checkForChanges())
 				saveFileAs();
 			change = false;
-		} else if (e.getSource() == searchById) {
-			new SearchByIdCommand(this).execute();
-		} else if (e.getSource() == searchBySurname) {
-			new SearchBySurnameCommand(this).execute();
 		} else if (e.getSource() == searchId || e.getSource() == searchByIdField) {
-			new SearchByIdCommand(this).execute();
+			new SearchByIdCommand(this, searchContext).execute();
 		} else if (e.getSource() == searchSurname || e.getSource() == searchBySurnameField) {
-			new SearchBySurnameCommand(this).execute();
+			new SearchBySurnameCommand(this, searchContext).execute();
 		} else if (e.getSource() == saveChange) {
 			if (checkInput() && !checkForChanges())
 				saveChanges();
@@ -1027,15 +1025,6 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 		lastRecord();
 	}
 
-	// Public wrapper for displaySearchByIdDialog()
-	public void triggerSearchByIdDialog() {
-		displaySearchByIdDialog();
-	}
-
-	// Public wrapper for displaySearchBySurnameDialog()
-	public void triggerSearchBySurnameDialog() {
-		displaySearchBySurnameDialog();
-	}
 
 	// content pane for main dialog
 	private void createContentPane() {

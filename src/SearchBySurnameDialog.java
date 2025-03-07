@@ -14,6 +14,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -23,11 +24,13 @@ public class SearchBySurnameDialog extends JDialog implements ActionListener{
 	EmployeeDetails parent;
 	JButton search, cancel;
 	JTextField searchField;
+	SearchContext searchContext;
 	// constructor for search by surname dialog
-	public SearchBySurnameDialog(EmployeeDetails parent) {
+	public SearchBySurnameDialog(EmployeeDetails parent, SearchContext searchContext) {
 		setTitle("Search by Surname");
 		setModal(true);
 		this.parent = parent;
+		this.searchContext = searchContext;
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
 		JScrollPane scrollPane = new JScrollPane(searchPane());
@@ -73,8 +76,13 @@ public class SearchBySurnameDialog extends JDialog implements ActionListener{
 	public void actionPerformed(ActionEvent e) {
 		// if option search, search for Employee
 		if(e.getSource() == search){
-			SearchContext searchContext = new SearchContext(new SearchBySurnameStrategy(parent));
-			searchContext.executeSearch(searchField.getText()); // Execute the search
+			String query = searchField.getText().trim();
+            if (query.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Please enter a surname.");
+                return;
+            }
+            searchContext.setStrategy(new SearchBySurnameStrategy());
+            searchContext.executeSearch(parent, query);
 			dispose();// dispose dialog
 		}// end if
 		// else dispose dialog

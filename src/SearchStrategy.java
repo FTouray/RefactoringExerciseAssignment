@@ -1,3 +1,3 @@
 public interface SearchStrategy {
-    void search(String query);
+    void search(EmployeeDetails employeeDetails, String query);
 }

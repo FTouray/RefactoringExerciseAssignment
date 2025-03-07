@@ -25,18 +25,19 @@ public class SearchByIdDialog extends JDialog implements ActionListener {
 	EmployeeDetails parent;
 	JButton search, cancel;
 	JTextField searchField;
+	SearchContext searchContext;
 	// constructor for SearchByIdDialog 
-	public SearchByIdDialog(EmployeeDetails parent) {
-		setTitle("Search by Surname");
+	public SearchByIdDialog(EmployeeDetails parent, SearchContext searchContext) {
+		setTitle("Search by ID");
 		setModal(true);
 		this.parent = parent;
+		this.searchContext = searchContext;
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
 		JScrollPane scrollPane = new JScrollPane(searchPane());
 		setContentPane(scrollPane);
-
 		getRootPane().setDefaultButton(search);
-		
+
 		setSize(500, 190);
 		setLocation(350, 250);
 		setVisible(true);
@@ -77,9 +78,13 @@ public class SearchByIdDialog extends JDialog implements ActionListener {
 		if (e.getSource() == search) {
 			// try get correct valus from text field
 			try {
-				Double.parseDouble(searchField.getText());
-				SearchContext searchContext = new SearchContext(new SearchByIdStrategy(parent));
-				searchContext.executeSearch(searchField.getText()); // Execute the search
+				String query = searchField.getText().trim();
+				if (query.isEmpty()) {
+					JOptionPane.showMessageDialog(null, "Please enter an ID.");
+					return;
+				}
+				searchContext.setStrategy(new SearchByIdStrategy());
+				searchContext.executeSearch(parent, query);
 				dispose();// dispose dialog
 			}// end try
 			catch (NumberFormatException num) {
